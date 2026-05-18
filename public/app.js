@@ -267,17 +267,26 @@ function viewRecipe(recipeId) {
     modal.show();
 }
 
-// 4. Tarif Silme İşlemi (DELETE)
-async function deleteRecipe(recipeId) {
-    // Kullanıcıya silmeden önce son bir onay soruyoruz (Yanlışlıkla tıklamalara karşı UX önlemi)
-    const isConfirmed = confirm("Bu tarifi silmek istediğinize emin misiniz?");
-    if (!isConfirmed) return; // İptal derse işlemi durdur
+// ==========================================
+// 4. TARİF SİLME İŞLEMİ (DELETE) - MODAL İLE
+// ==========================================
+let recipeToDeleteId = null; // Hangi tarifin silineceğini geçici olarak hafızada tutuyoruz
+
+// Karttaki kırmızı "Sil" butonuna basıldığında sadece şık pencereyi açıyoruz
+function deleteRecipe(recipeId) {
+    recipeToDeleteId = recipeId; 
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    modal.show();
+}
+
+// Açılan şık penceredeki "Evet, Sil" butonuna basıldığında asıl veritabanı silme işlemini yapıyoruz
+document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+    if (!recipeToDeleteId) return;
 
     const token = localStorage.getItem('token');
     
     try {
-        // Sunucudaki DELETE uç noktasına (endpoint) istek atıyoruz
-        const response = await fetch(`/api/recipes/${recipeId}`, {
+        const response = await fetch(`/api/recipes/${recipeToDeleteId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -285,9 +294,13 @@ async function deleteRecipe(recipeId) {
         });
 
         if (response.ok) {
+            // Modalı programatik olarak kapat
+            const modalElement = document.getElementById('deleteConfirmModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            modalInstance.hide();
+            
             showAlert('Tarif başarıyla silindi.', 'success');
-            // Silme işleminden sonra ekranı güncellemek için tarifleri baştan çekiyoruz
-            loadRecipes();
+            loadRecipes(); // Ekrandaki listeyi yenile
         } else {
             const data = await response.json();
             showAlert(data.mesaj, 'danger');
@@ -296,7 +309,7 @@ async function deleteRecipe(recipeId) {
         console.error('Silme hatası:', error);
         showAlert('Silme işlemi sırasında bir hata oluştu.', 'danger');
     }
-}
+});
 
 // 5. Güncelleme Formunu Veriyle Doldurma ve Açma (Data Binding)
 let currentEditRecipeId = null; // Güncellenen tarifin ID'sini globalde tutuyoruz
