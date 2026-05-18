@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijital Tarif Defteri</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg custom-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="#" id="nav-brand">📖 Dijital Tarif Defteri</a>
+            <div class="d-flex" id="auth-nav">
+                </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5" id="main-container">
+        
+        <div id="alert-container" class="d-none alert" role="alert"></div>
+
+        <div id="login-section" class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card shadow-sm border-0 mt-4">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-center mb-4">Giriş Yap</h3>
+                        <form id="login-form">
+                            <div class="mb-3">
+                                <label class="form-label">E-posta Adresi</label>
+                                <input type="email" id="login-email" class="form-value form-control" required placeholder="ornek@mail.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Şifre</label>
+                                <input type="password" id="login-password" class="form-value form-control" required placeholder="******">
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 mb-3">Giriş Yap</button>
+                            <p class="text-center small mb-0">Hesabınız yok mu? <a href="#" id="go-to-register" class="text-success fw-bold text-decoration-none">Kayıt Olun</a></p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="register-section" class="row justify-content-center d-none">
+            <div class="col-md-5">
+                <div class="card shadow-sm border-0 mt-4">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-center mb-4">Kayıt Ol</h3>
+                        <form id="register-form">
+                            <div class="mb-3">
+                                <label class="form-label">E-posta Adresi</label>
+                                <input type="email" id="register-email" class="form-control" required placeholder="ornek@mail.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Şifre</label>
+                                <input type="password" id="register-password" class="form-control" required placeholder="En az 6 karakter">
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 mb-3">Kayıt Ol</button>
+                            <p class="text-center small mb-0">Zaten üye misiniz? <a href="#" id="go-to-login" class="text-success fw-bold text-decoration-none">Giriş Yapın</a></p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard-section" class="d-none">
+            <div class="row mb-4 align-items-center">
+                <div class="col">
+                    <h2 class="mb-0">Tarif Defterim</h2>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-outline-success me-2" id="btn-chef-recommendation">🎲 Şefin Tavsiyesi</button>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#recipeModal">+ Yeni Tarif Ekle</button>
+                </div>
+            </div>
+            
+            <div class="row" id="recipes-list-container">
+                </div>
+        </div>
+
+    </div>
+
+    </div> <div class="modal fade" id="recipeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header custom-navbar text-white border-0">
+                    <h5 class="modal-title">Yeni Tarif Ekle</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="add-recipe-form">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted small">TARİF ADI</label>
+                            <input type="text" id="recipe-title" class="form-control" required placeholder="Örn: Fırın Sütlaç">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted small">MALZEMELER</label>
+                            <textarea id="recipe-ingredients" class="form-control" rows="2" required placeholder="Aralarına virgül koyarak yazın"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted small">YAPILIŞI</label>
+                            <textarea id="recipe-instructions" class="form-control" rows="3" required placeholder="Adım adım tarifin yapılışı..."></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted small">KATEGORİ (ZORUNLU)</label>
+                            <select id="recipe-category" class="form-select">
+                                <option value="Kahvaltılık">Kahvaltılık</option>
+                                <option value="Ana Yemek">Ana Yemek</option>
+                                <option value="Çorba">Çorba</option>
+                                <option value="Tatlı">Tatlı</option>
+                                <option value="Hamur İşi">Hamur İşi</option>
+                                <option value="Salata">Salata</option>
+                                <option value="İçecek">İçecek</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Tarifi Kaydet</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="recipeDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header custom-navbar text-white border-0">
+                    <h5 class="modal-title fw-bold" id="detail-title">Tarif Adı</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <span class="badge custom-navbar mb-4" id="detail-category">Kategori</span>
+                    
+                    <h6 class="fw-bold text-muted small"><i class="bi bi-cart"></i> MALZEMELER</h6>
+                    <p id="detail-ingredients" class="mb-4 text-dark"></p>
+                    
+                    <h6 class="fw-bold text-muted small"><i class="bi bi-journal-text"></i> YAPILIŞI</h6>
+                    <p id="detail-instructions" class="text-dark" style="white-space: pre-line;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

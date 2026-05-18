@@ -1,0 +1,99 @@
+const db = require('../models/database');
+
+// 1. YENİ TARİF EKLEME (CREATE)
+const createRecipe = (req, res) => {
+    const { title, ingredients, instructions, category } = req.body;
+    const userId = req.user.id; // Middleware'den gelen doğrulanmış kullanıcı ID'si
+
+    // Temel Boşluk Kontrolü
+    if (!title || !ingredients || !instructions) {
+        return res.status(400).json({ mesaj: "Lütfen başlık, malzemeler ve yapılış kısımlarını doldurun." });
+    }
+
+    // KATEGORİ KISITLAMASI (DATA INTEGRITY)
+    // Sadece bu listedeki kategorilere izin veriyoruz
+    const allowedCategories = ["Kahvaltılık", "Ana Yemek", "Çorba", "Tatlı", "Hamur İşi", "Salata", "İçecek"];
+    
+    // Eğer kullanıcı bir kategori göndermişse ve bu kategori izin verilenler listesinde yoksa:
+    if (category && !allowedCategories.includes(category)) {
+        return res.status(400).json({ 
+            mesaj: `Geçersiz kategori! Lütfen şunlardan birini seçin: ${allowedCategories.join(', ')}` 
+        });
+    }
+
+    const sql = `INSERT INTO recipes (user_id, title, ingredients, instructions, category) VALUES (?, ?, ?, ?, ?)`;
+    db.run(sql, [userId, title, ingredients, instructions, category], function(err) {
+        if (err) return res.status(500).json({ mesaj: "Veritabanı hatası!" });
+        res.status(201).json({ mesaj: "Tarif başarıyla eklendi!", id: this.lastID });
+    });
+};
+
+// 2. KULLANICININ KENDİ TARİFLERİNİ GETİRME (READ)
+const getAllRecipes = (req, res) => {
+    const userId = req.user.id;
+
+    // Sadece token'a sahip olan kullanıcının ID'si ile eşleşen tarifleri getir
+    const sql = `SELECT * FROM recipes WHERE user_id = ?`;
+    db.all(sql, [userId], (err, rows) => {
+        if (err) return res.status(500).json({ mesaj: "Veritabanı hatası!" });
+        res.json({ tarifler: rows });
+    });
+};
+
+// 3. TARİF SİLME (DELETE)
+const deleteRecipe = (req, res) => {
+    const recipeId = req.params.id;
+    const userId = req.user.id;
+
+    // Sadece o tarifin sahibi silebilsin diye AND user_id = ? kontrolü ekliyoruz
+    const sql = `DELETE FROM recipes WHERE id = ? AND user_id = ?`;
+    db.run(sql, [recipeId, userId], function(err) {
+        if (err) return res.status(500).json({ mesaj: "Veritabanı hatası!" });
+        if (this.changes === 0) return res.status(404).json({ mesaj: "Tarif bulunamadı veya silme yetkiniz yok." });
+        res.json({ mesaj: "Tarif başarıyla silindi." });
+    });
+};
+
+// 4. ŞEFİN TAVSİYESİ - RASTGELE ÖNERİ ALGORİTMASI 
+const getRandomRecipe = (req, res) => {
+    const userId = req.user.id;
+
+    // Kullanıcının daha önce denemediği (is_tried = 0) tarifler arasından rastgele 1 tane seç
+    const sql = `SELECT * FROM recipes WHERE user_id = ? AND is_tried = 0 ORDER BY RANDOM() LIMIT 1`;
+    db.get(sql, [userId], (err, row) => {
+        if (err) return res.status(500).json({ mesaj: "Veritabanı hatası!" });
+        if (!row) return res.status(404).json({ mesaj: "Önerecek denenmemiş tarif bulunamadı." });
+        res.json({ onerilenTarif: row });
+    });
+};
+
+// 5. TARİF GÜNCELLEME (UPDATE)
+const updateRecipe = (req, res) => {
+    const recipeId = req.params.id;
+    const userId = req.user.id;
+    const { title, ingredients, instructions, category, is_tried } = req.body;
+
+    // Kategori validasyonu (Veri Bütünlüğü için)
+    const allowedCategories = ["Kahvaltılık", "Ana Yemek", "Çorba", "Tatlı", "Hamur İşi", "Salata", "İçecek"];
+    if (category && !allowedCategories.includes(category)) {
+        return res.status(400).json({ 
+            mesaj: `Geçersiz kategori! Lütfen şunlardan birini seçin: ${allowedCategories.join(', ')}` 
+        });
+    }
+
+    // Yalnızca tarifi oluşturan kişi güncelleyebilsin diye "user_id = ?" kontrolü yapıyoruz
+    const sql = `UPDATE recipes SET title = ?, ingredients = ?, instructions = ?, category = ?, is_tried = ? WHERE id = ? AND user_id = ?`;
+    
+    db.run(sql, [title, ingredients, instructions, category, is_tried, recipeId, userId], function(err) {
+        if (err) return res.status(500).json({ mesaj: "Veritabanı hatası!" });
+        
+        // Eğer hiçbir satır değişmediyse (tarif yoksa veya kullanıcı yetkisizse)
+        if (this.changes === 0) {
+            return res.status(404).json({ mesaj: "Tarif bulunamadı veya bu tarifi güncelleme yetkiniz yok." });
+        }
+        
+        res.json({ mesaj: "Tarif başarıyla güncellendi." });
+    });
+};
+
+module.exports = { createRecipe, getAllRecipes, deleteRecipe, getRandomRecipe, updateRecipe };

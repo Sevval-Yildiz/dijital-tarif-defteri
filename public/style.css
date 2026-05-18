@@ -1,0 +1,23 @@
+/* Arka planı o çiğ beyaz yerine, göz yormayan yumuşak bir krem rengi yapıyoruz */
+body {
+    background-color: #Fdfbf7 !important; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Siyah navigasyon çubuğu yerine ferah Adaçayı Yeşili */
+.custom-navbar {
+    background-color: #709775 !important; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Altına hafif şık bir gölge ekledik */
+}
+
+/* Menüdeki yazıların rengi */
+.custom-navbar .navbar-brand, .custom-navbar .nav-link {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* Başlık metinlerinin rengini de koyu bir antrasit yapalım ki krem üzerinde şık dursun */
+h1 {
+    color: #2c3e50;
+    font-weight: 700;
+}
