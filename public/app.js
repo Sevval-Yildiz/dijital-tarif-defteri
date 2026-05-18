@@ -187,7 +187,11 @@ async function loadRecipes() {
                         </div>
                         <div class="card-footer bg-transparent border-0 pt-0">
                             <button class="btn btn-sm btn-success w-100 mb-2" onclick="viewRecipe(${recipe.id})">📖 Tarifi Oku</button>
-                            <button class="btn btn-sm btn-outline-danger w-100" onclick="deleteRecipe(${recipe.id})">🗑️ Sil</button>
+                            
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary w-50" onclick="openEditModal(${recipe.id})">✏️ Düzenle</button>
+                                <button class="btn btn-sm btn-outline-danger w-50" onclick="deleteRecipe(${recipe.id})">🗑️ Sil</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -290,3 +294,63 @@ async function deleteRecipe(recipeId) {
         showAlert('Silme işlemi sırasında bir hata oluştu.', 'danger');
     }
 }
+
+// 5. Güncelleme Formunu Veriyle Doldurma ve Açma (Data Binding)
+let currentEditRecipeId = null; // Güncellenen tarifin ID'sini globalde tutuyoruz
+
+function openEditModal(recipeId) {
+    const recipe = currentRecipes.find(r => r.id === recipeId);
+    if (!recipe) return;
+
+    // Seçili tarifin bilgilerini form inputlarına atıyoruz
+    currentEditRecipeId = recipeId;
+    document.getElementById('edit-recipe-title').value = recipe.title;
+    document.getElementById('edit-recipe-ingredients').value = recipe.ingredients;
+    document.getElementById('edit-recipe-instructions').value = recipe.instructions;
+    document.getElementById('edit-recipe-category').value = recipe.category;
+
+    // Modalı ekranda göster
+    const modal = new bootstrap.Modal(document.getElementById('editRecipeModal'));
+    modal.show();
+}
+
+// 6. Güncellenmiş Veriyi Sunucuya Gönderme (UPDATE - PUT Request)
+document.getElementById('edit-recipe-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+
+    // Formdaki güncel değerleri yakalıyoruz
+    const updatedRecipe = {
+        title: document.getElementById('edit-recipe-title').value,
+        ingredients: document.getElementById('edit-recipe-ingredients').value,
+        instructions: document.getElementById('edit-recipe-instructions').value,
+        category: document.getElementById('edit-recipe-category').value
+    };
+
+    try {
+        const response = await fetch(`/api/recipes/${currentEditRecipeId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(updatedRecipe)
+        });
+
+        if (response.ok) {
+            // Modalı programatik olarak kapat
+            const modalElement = document.getElementById('editRecipeModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            modalInstance.hide();
+            
+            showAlert('Tarif başarıyla güncellendi.', 'success');
+            loadRecipes(); // Ekrandaki listeyi yenile
+        } else {
+            const data = await response.json();
+            showAlert(data.mesaj, 'danger');
+        }
+    } catch (error) {
+        console.error('Güncelleme hatası:', error);
+        showAlert('Güncelleme sırasında bir hata oluştu.', 'danger');
+    }
+});
