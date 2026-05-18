@@ -179,6 +179,8 @@ async function loadRecipes() {
                     <div class="card h-100 shadow-sm border-0">
                         <div class="card-body">
                             <span class="badge custom-navbar mb-2">${recipe.category}</span>
+                            <span class="badge ${recipe.is_tried ? 'bg-success' : 'bg-warning text-dark'} mb-2 ms-1">
+                            ${recipe.is_tried ? '✓ Denendi' : '⏳ Denenmedi'}</span>
                             <h5 class="card-title fw-bold text-dark">${recipe.title}</h5>
                             <p class="card-text text-muted small mt-3">
                                 <strong>Malzemeler:</strong><br>
@@ -213,7 +215,8 @@ document.getElementById('add-recipe-form').addEventListener('submit', async (e) 
         title: document.getElementById('recipe-title').value,
         ingredients: document.getElementById('recipe-ingredients').value,
         instructions: document.getElementById('recipe-instructions').value,
-        category: document.getElementById('recipe-category').value
+        category: document.getElementById('recipe-category').value,
+        is_tried: document.getElementById('recipe-is-tried').checked ? 1 : 0
     };
 
     try {
@@ -309,6 +312,9 @@ function openEditModal(recipeId) {
     document.getElementById('edit-recipe-instructions').value = recipe.instructions;
     document.getElementById('edit-recipe-category').value = recipe.category;
 
+    // Checkbox'ı veritabanından gelen veriye göre işaretle veya boş bırak
+    document.getElementById('edit-recipe-is-tried').checked = recipe.is_tried === 1;
+
     // Modalı ekranda göster
     const modal = new bootstrap.Modal(document.getElementById('editRecipeModal'));
     modal.show();
@@ -324,7 +330,8 @@ document.getElementById('edit-recipe-form').addEventListener('submit', async (e)
         title: document.getElementById('edit-recipe-title').value,
         ingredients: document.getElementById('edit-recipe-ingredients').value,
         instructions: document.getElementById('edit-recipe-instructions').value,
-        category: document.getElementById('edit-recipe-category').value
+        category: document.getElementById('edit-recipe-category').value,
+        is_tried: document.getElementById('edit-recipe-is-tried').checked ? 1 : 0
     };
 
     try {
