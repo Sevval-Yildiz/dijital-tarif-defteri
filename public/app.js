@@ -187,7 +187,7 @@ async function loadRecipes() {
                         </div>
                         <div class="card-footer bg-transparent border-0 pt-0">
                             <button class="btn btn-sm btn-success w-100 mb-2" onclick="viewRecipe(${recipe.id})">📖 Tarifi Oku</button>
-                            <button class="btn btn-sm btn-outline-danger w-100">🗑️ Sil</button>
+                            <button class="btn btn-sm btn-outline-danger w-100" onclick="deleteRecipe(${recipe.id})">🗑️ Sil</button>
                         </div>
                     </div>
                 </div>
@@ -258,4 +258,35 @@ function viewRecipe(recipeId) {
     // Modalı (Pencereyi) ekranda gösteriyoruz
     const modal = new bootstrap.Modal(document.getElementById('recipeDetailModal'));
     modal.show();
+}
+
+// 4. Tarif Silme İşlemi (DELETE)
+async function deleteRecipe(recipeId) {
+    // Kullanıcıya silmeden önce son bir onay soruyoruz (Yanlışlıkla tıklamalara karşı UX önlemi)
+    const isConfirmed = confirm("Bu tarifi silmek istediğinize emin misiniz?");
+    if (!isConfirmed) return; // İptal derse işlemi durdur
+
+    const token = localStorage.getItem('token');
+    
+    try {
+        // Sunucudaki DELETE uç noktasına (endpoint) istek atıyoruz
+        const response = await fetch(`/api/recipes/${recipeId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            showAlert('Tarif başarıyla silindi.', 'success');
+            // Silme işleminden sonra ekranı güncellemek için tarifleri baştan çekiyoruz
+            loadRecipes();
+        } else {
+            const data = await response.json();
+            showAlert(data.mesaj, 'danger');
+        }
+    } catch (error) {
+        console.error('Silme hatası:', error);
+        showAlert('Silme işlemi sırasında bir hata oluştu.', 'danger');
+    }
 }
