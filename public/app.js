@@ -361,3 +361,27 @@ document.getElementById('edit-recipe-form').addEventListener('submit', async (e)
         showAlert('Güncelleme sırasında bir hata oluştu.', 'danger');
     }
 });
+
+// ==========================================
+// EKSTRA ÖZELLİK: ŞEFİN TAVSİYESİ ALGORİTMASI
+// ==========================================
+document.getElementById('btn-chef-recommendation').addEventListener('click', () => {
+    // 1. Hafızadaki tariflerden sadece "Denenmedi" (is_tried == 0 veya false) olanları filtrele
+    const untriedRecipes = currentRecipes.filter(r => r.is_tried === 0 || r.is_tried === false);
+
+    // 2. Eğer denenmemiş tarif yoksa kullanıcıyı uyar
+    if (untriedRecipes.length === 0) {
+        showAlert('Harikasın şef! Listendeki tüm tarifleri denemişsin veya defterde henüz denenmemiş tarif yok.', 'warning');
+        return;
+    }
+
+    // 3. Filtrelenen denenmemiş tarifler arasından rastgele birini seç
+    const randomIndex = Math.floor(Math.random() * untriedRecipes.length);
+    const suggestedRecipe = untriedRecipes[randomIndex];
+
+    // 4. Seçilen tarifi, daha önce yazdığımız okuma penceresinde (Modal) aç
+    viewRecipe(suggestedRecipe.id);
+    
+    // 5. Ekrana tatlı bir bildirim çıkar
+    showAlert(`🎲 Şefin Tavsiyesi: Bugün "${suggestedRecipe.title}" yapmaya ne dersin?`, 'success');
+});

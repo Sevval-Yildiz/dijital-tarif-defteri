@@ -1,30 +1,30 @@
 const db = require('../models/database');
 
-// 1. YENİ TARİF EKLEME (CREATE)
+// 1. TARİF OLUŞTURMA (CREATE)
 const createRecipe = (req, res) => {
-    const { title, ingredients, instructions, category } = req.body;
-    const userId = req.user.id; // Middleware'den gelen doğrulanmış kullanıcı ID'si
+    // req.body içinden artık is_tried verisini de çekiyoruz
+    const { title, ingredients, instructions, category, is_tried } = req.body;
+    const userId = req.user.id; // JWT'den gelen kullanıcı
 
-    // Temel Boşluk Kontrolü
-    if (!title || !ingredients || !instructions) {
-        return res.status(400).json({ mesaj: "Lütfen başlık, malzemeler ve yapılış kısımlarını doldurun." });
-    }
-
-    // KATEGORİ KISITLAMASI (DATA INTEGRITY)
-    // Sadece bu listedeki kategorilere izin veriyoruz
+    // Kategori validasyonu
     const allowedCategories = ["Kahvaltılık", "Ana Yemek", "Çorba", "Tatlı", "Hamur İşi", "Salata", "İçecek"];
-    
-    // Eğer kullanıcı bir kategori göndermişse ve bu kategori izin verilenler listesinde yoksa:
-    if (category && !allowedCategories.includes(category)) {
-        return res.status(400).json({ 
-            mesaj: `Geçersiz kategori! Lütfen şunlardan birini seçin: ${allowedCategories.join(', ')}` 
-        });
+    if (!allowedCategories.includes(category)) {
+        return res.status(400).json({ mesaj: "Geçersiz kategori!" });
     }
 
-    const sql = `INSERT INTO recipes (user_id, title, ingredients, instructions, category) VALUES (?, ?, ?, ?, ?)`;
-    db.run(sql, [userId, title, ingredients, instructions, category], function(err) {
-        if (err) return res.status(500).json({ mesaj: "Veritabanı hatası!" });
-        res.status(201).json({ mesaj: "Tarif başarıyla eklendi!", id: this.lastID });
+    // Gelen is_tried verisini güvenli hale getiriyoruz (Yoksa 0 yap)
+    const triedValue = is_tried === 1 ? 1 : 0;
+
+    // SQL sorgusuna is_tried sütununu da ekledik
+    const sql = `INSERT INTO recipes (title, ingredients, instructions, category, is_tried, user_id) VALUES (?, ?, ?, ?, ?, ?)`;
+    
+    db.run(sql, [title, ingredients, instructions, category, triedValue, userId], function(err) {
+        if (err) return res.status(500).json({ mesaj: "Veritabanına kaydedilirken bir hata oluştu." });
+        
+        res.status(201).json({ 
+            mesaj: "Tarif başarıyla eklendi.", 
+            id: this.lastID 
+        });
     });
 };
 
