@@ -3,6 +3,9 @@ const express = require('express'); // Web sunucumuzu kuracak ana iskelet (motor
 const cors = require('cors'); // Frontend ile backendin güvenli konuşmasını sağlayan izin belgesi.
 require('dotenv').config(); // .env dosyamızdaki gizli sifrelerimizi okuyabilmemizi sağlayan paket.
 const db = require('./src/models/database'); // Veritabanımızın çalışması için ana motorumuzda onu çağırıyoruz.
+const swaggerUi = require('swagger-ui-express');
+// server.js ve swagger.json yan yana olduğu için sadece ./ kullanıyoruz
+const swaggerDocument = require('./swagger.json');
 
 // Motoru çalıştırma ve ayarlar :
 const app = express(); // Express'i çalıştırıp app adında bir sunucu objesi üretiyoruz.
@@ -30,6 +33,9 @@ app.use('/api/auth', authRoutes);
 // Tarif işlemleri için yönlendirmeleri çağırıyoruz
 const recipeRoutes = require('./src/routes/recipeRoutes');
 app.use('/api/recipes', recipeRoutes);
+
+// Swagger API Dokümantasyonu Rotası
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Sunucuya "Belirlediğimiz kapıda (3000) sürekli dinlemede kal ve uyanık ol" diyoruz.
 app.listen(PORT, () => {

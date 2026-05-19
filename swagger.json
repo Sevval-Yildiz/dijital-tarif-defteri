@@ -1,0 +1,160 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Dijital Tarif Defteri API",
+    "version": "1.0.0",
+    "description": "Sistem Analizi ve Tasarımı projesi için geliştirilmiş RESTful API dokümantasyonu."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Yerel Geliştirme Sunucusu"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "summary": "Yeni kullanıcı kaydı oluşturur",
+        "tags": ["Kullanıcı İşlemleri"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "example": "yeni@kullanici.com" },
+                  "password": { "type": "string", "example": "sifre123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Kayıt başarılı" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Kullanıcı girişi yapar ve JWT Token döner",
+        "tags": ["Kullanıcı İşlemleri"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "example": "ogrenci@muhendislik.com" },
+                  "password": { "type": "string", "example": "guclu_sifre_123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Giriş başarılı, token üretildi" }
+        }
+      }
+    },
+    "/api/recipes": {
+      "get": {
+        "summary": "Kullanıcıya ait tüm tarifleri getirir",
+        "tags": ["Tarif İşlemleri (CRUD)"],
+        "responses": {
+          "200": { "description": "Tarifler başarıyla listelendi" }
+        }
+      },
+      "post": {
+        "summary": "Yeni bir tarif ekler",
+        "tags": ["Tarif İşlemleri (CRUD)"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string", "example": "Fırın Makarna" },
+                  "ingredients": { "type": "string", "example": "Makarna, kaşar, süt..." },
+                  "instructions": { "type": "string", "example": "Önce makarnayı haşlayın..." },
+                  "category": { "type": "string", "example": "Ana Yemek" },
+                  "is_tried": { "type": "integer", "example": 1 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Tarif başarıyla oluşturuldu" }
+        }
+      }
+    },
+    "/api/recipes/{id}": {
+      "put": {
+        "summary": "Belirtilen ID'ye sahip tarifi günceller",
+        "tags": ["Tarif İşlemleri (CRUD)"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "ingredients": { "type": "string" },
+                  "instructions": { "type": "string" },
+                  "category": { "type": "string" },
+                  "is_tried": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Tarif başarıyla güncellendi" }
+        }
+      },
+      "delete": {
+        "summary": "Belirtilen ID'ye sahip tarifi siler",
+        "tags": ["Tarif İşlemleri (CRUD)"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Tarif başarıyla silindi" }
+        }
+      }
+    }
+  }
+}
