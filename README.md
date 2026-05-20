@@ -36,7 +36,8 @@ dijital-tarif-defteri/
 │
 ├── public/                 # Ön yüz (Frontend) dosyaları
 ├── src/                    # Arka yüz (Backend) modülleri
-│   ├── controllers/        # İş mantığı ve veritabanı işlemleri
+│   ├── controllers/        # İş mantığı ve API operasyonları
+│   ├── models/             # Veritabanı bağlantısı ve tablo yapıları
 │   ├── routes/             # API yönlendirmeleri (Endpoints)
 │   └── middlewares/        # Güvenlik ve yetki kontrolleri
 │
